@@ -514,7 +514,7 @@ msgstr "année"
 
 #: ../src/bet_config.c:1464
 msgid "Date of first repayment: "
-msgstr "Date de la première échéance : "
+msgstr "Date de la 1ère échéance : "
 
 #. taux
 #. Annuel rate interest
