@@ -72,22 +72,22 @@ static GtkWidget *bet_config_account_get_select_account ( gchar *title );
 static GtkWidget *bet_config_account_get_select_bank_card ( void );
 static GtkWidget *bet_config_account_get_select_historical_data ( gchar *title );
 static void bet_config_finance_apply_clicked ( GtkButton *button, GtkWidget *parent );
-static GtkWidget *bet_config_get_select_labels_widget ( GtkWidget *container );
+//~ static GtkWidget *bet_config_get_select_labels_widget ( GtkWidget *container );
 static void bet_config_period_clicked ( GtkWidget *togglebutton, GdkEventButton *event, GtkWidget *button );
 static gboolean bet_config_select_label_changed ( GtkWidget *checkbutton,
                         GdkEventButton *event,
                         gpointer data );
-static GtkWidget *bet_config_get_select_historical_data ( GtkWidget *container,
-                        GtkWidget *notebook );
+//~ static GtkWidget *bet_config_get_select_historical_data ( GtkWidget *container,
+                        //~ GtkWidget *notebook );
 static void bet_config_sensitive_account_parameters ( gint account_number, gboolean sensitive );
 static void bet_config_use_budget_toggle ( GtkToggleButton *button, GtkWidget *notebook );
-static void bet_config_initialise_duration_widget ( gint account_number,
-                        GtkWidget *notebook );
+//~ static void bet_config_initialise_duration_widget ( gint account_number,
+                        //~ GtkWidget *notebook );
 static void bet_config_initialise_finance_widget ( gint account_number,
                         GtkWidget *notebook );
-static void bet_config_initialise_select_bank_card ( gint account_number );
-static void bet_config_initialise_select_historical_data ( gint account_number,
-                        GtkWidget *notebook );
+//~ static void bet_config_initialise_select_bank_card ( gint account_number );
+//~ static void bet_config_initialise_select_historical_data ( gint account_number,
+                        //~ GtkWidget *notebook );
 /*END_STATIC*/
 
 /*START_EXTERN*/
@@ -1709,7 +1709,7 @@ void bet_config_finance_apply_clicked ( GtkButton *button, GtkWidget *parent )
  *
  *
  * */
-static void bet_config_select_bank_card_toggle ( GtkToggleButton *button,
+void bet_config_select_bank_card_toggle ( GtkToggleButton *button,
                         GtkWidget *combo )
 {
     gint account_number;
@@ -1771,7 +1771,7 @@ static GtkWidget *bet_config_account_get_select_bank_card ( void )
  *
  * \return
  * */
-static void bet_config_initialise_select_bank_card ( gint account_number )
+void bet_config_initialise_select_bank_card ( gint account_number )
 {
     GtkWidget *button;
     gint active;

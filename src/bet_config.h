@@ -20,6 +20,18 @@ void 		bet_config_origin_data_clicked 			(GtkWidget *togglebutton,
 													 GdkEventButton *event,
 													 gpointer data);
 GtkWidget *	bet_config_get_duration_widget 			(gint origin);
+
+void bet_config_initialise_duration_widget ( gint account_number,
+                        GtkWidget *notebook );
+void bet_config_initialise_select_historical_data ( gint account_number,
+                        GtkWidget *notebook );
+void bet_config_initialise_select_bank_card ( gint account_number );
+void bet_config_select_bank_card_toggle ( GtkToggleButton *button,
+                        GtkWidget *combo );
+GtkWidget *bet_config_get_select_labels_widget ( GtkWidget *container );
+GtkWidget *bet_config_get_select_historical_data ( GtkWidget *container,
+                        GtkWidget *notebook );
+
 /* END_DECLARATION */
 
 
