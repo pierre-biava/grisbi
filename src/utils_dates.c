@@ -451,7 +451,7 @@ invalid:
  *
  * \param
  *
- * \return return a newly allocated string or NULL if the format of the date_string
+ * \return return a newly allocated date or NULL if the format of the date_string
  * parameter is invalid.
  */
 GDate *gsb_parse_date_string_safe ( const gchar *date_string )

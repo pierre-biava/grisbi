@@ -3803,7 +3803,7 @@ gsb_real gsb_data_account_get_balance_at_date ( gint account_number,
  *
  * \return
  * */
-void			gsb_data_account_set_all_limits_of_balance (void)
+void gsb_data_account_set_all_limits_of_balance (void)
 {
     GSList *tmp_list;
 
