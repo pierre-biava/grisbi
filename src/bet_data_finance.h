@@ -8,24 +8,9 @@
 /* END_INCLUDE_H */
 
 #define BET_TAUX_DIGITS 3
-typedef struct _EcheanceStruct			EcheanceStruct;
 typedef struct _AmortissementStruct		AmortissementStruct;
-
-
-
-/* structure échéance */
-struct _EcheanceStruct {
-    gint duree;
-    gint nbre_echeances;
-    gint devise;
-    gdouble taux;
-    gdouble taux_periodique;
-    gdouble capital;
-    gdouble frais;
-    gdouble echeance;
-    gdouble total_echeance;
-    gdouble total_cost;
-};
+typedef struct _EcheanceStruct			EcheanceStruct;
+typedef struct _LoanStruct				LoanStruct;
 
 /* structure amortissement */
 struct _AmortissementStruct {
@@ -43,6 +28,35 @@ struct _AmortissementStruct {
     gchar *str_frais;
 };
 
+/* structure échéance */
+struct _EcheanceStruct {
+    gint duree;
+    gint nbre_echeances;
+    gint devise;
+    gdouble taux;
+    gdouble taux_periodique;
+    gdouble capital;
+    gdouble frais;
+    gdouble echeance;
+    gdouble total_echeance;
+    gdouble total_cost;
+};
+
+/* structure prêt */
+struct _LoanStruct {
+	gint		number;					/* numero du pret */
+	gint 		account_number;
+	gint		version_number;			/* nombre de renegociation */
+	gdouble		capital;
+	gint 		duree;					/* mois */
+	GDate *		first_date;				/* date de la première échéance */
+	gdouble		fees;					/* par échéance */
+	gdouble		annual_rate;			/* taux annuel */
+	gint 		type_taux;
+	gboolean	first_is_different;		/* si la 1ère échéance est différente */
+	gdouble		first_capital;			/* capital de la 1ère échéance */
+	gdouble		first_interests;		/* intérêts de la 1ère échéance */
+};
 
 /* START_DECLARATION */
 void 					bet_data_finance_data_simulator_init 				(void);
@@ -69,6 +83,12 @@ void 					bet_data_finance_structure_amortissement_free 		(AmortissementStruct *
 AmortissementStruct *	bet_data_finance_structure_amortissement_init 		(void);
 gdouble 				bet_data_finance_troncate_number 					(gdouble number,
 																			 gint nbre_decimal);
+void	 				bet_data_loan_add_item 								(LoanStruct *s_loan);
+GSList *				bet_data_loan_get_loan_list 						(void);
+GSList *				bet_data_loan_get_loan_list_by_account 				(gint account_number);
+gboolean 				bet_data_loan_remove_item 							(LoanStruct *s_loan);
+LoanStruct *			bet_data_loan_struct_loan_init 						(void);
+
 /* END_DECLARATION */
 
 

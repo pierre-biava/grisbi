@@ -1154,30 +1154,6 @@ gulong gsb_file_save_account_part ( gulong iterator,
             g_free ( first_string_to_free );
             break;
         case BET_ONGLETS_CAP:
-            bet_str = g_markup_printf_escaped ( "\t\tBet_credit_card=\"%d\"\n"
-                        "\t\tBet_start_date=\"%s\"\n"
-                        "\t\tBet_months=\"%d\"\n"
-                        "\t\tBet_capital=\"%s\"\n"
-                        "\t\tBet_taux_annuel=\"%s\"\n"
-                        "\t\tBet_frais=\"%s\"\n"
-                        "\t\tBet_type_taux=\"%d\" />\n",
-                gsb_data_account_get_bet_credit_card ( account_number ),
-                my_safe_null_str ( gsb_format_gdate_safe (
-                        gsb_data_account_get_bet_start_date ( account_number ) ) ),
-                gsb_data_account_get_bet_months ( account_number ),
-                my_safe_null_str ( utils_str_dtostr (
-                        gsb_data_account_get_bet_finance_capital ( account_number ),
-                        gsb_data_account_get_currency_floating_point ( account_number ), TRUE ) ),
-                my_safe_null_str ( utils_str_dtostr (
-                        gsb_data_account_get_bet_finance_taux_annuel ( account_number ), BET_TAUX_DIGITS, TRUE ) ),
-                my_safe_null_str ( utils_str_dtostr (
-                        gsb_data_account_get_bet_finance_frais ( account_number ),
-                        gsb_data_account_get_currency_floating_point ( account_number ), TRUE ) ),
-                gsb_data_account_get_bet_finance_type_taux ( account_number ) );
-            new_string = g_strconcat ( first_string_to_free, "\n", bet_str, NULL );
-            g_free ( bet_str );
-            g_free ( first_string_to_free );
-            break;
         case BET_ONGLETS_ASSET:
         case BET_ONGLETS_SANS:
             new_string = g_strconcat ( first_string_to_free, " />\n", NULL );
