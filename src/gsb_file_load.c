@@ -2,7 +2,7 @@
 /*                                                                            */
 /*     Copyright (C)    2000-2008 Cédric Auger (cedric@grisbi.org)            */
 /*          2003-2009 Benjamin Drieu (bdrieu@april.org)                       */
-/*          2008-2016 Pierre Biava (grisbi@pierre.biava.name)                 */
+/*          2008-2018 Pierre Biava (grisbi@pierre.biava.name)                 */
 /*          http://www.grisbi.org                                             */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or modify      */
@@ -256,6 +256,9 @@ static  void gsb_file_load_general_part ( const gchar **attribute_names,
 
                 else if ( !strcmp ( attribute_names[i], "Combofix_force_category" ))
                     etat.combofix_force_category = utils_str_atoi( attribute_values[i]);
+
+                else if ( !strcmp ( attribute_names[i], "Crypt_file" ))
+                    etat.crypt_file = utils_str_atoi (attribute_values[i]);
 
                 else if ( !strcmp ( attribute_names[i], "CSV_force_date_valeur_with_date" ))
                     etat.csv_force_date_valeur_with_date = utils_str_atoi( attribute_values[i]);
@@ -2675,7 +2678,7 @@ static  void gsb_file_load_import_rule ( const gchar **attribute_names,
     gint i=0;
     gint import_rule_number = 0;
 
-    if ( !attribute_names[i] )
+	if ( !attribute_names[i] )
     return;
 
     import_rule_number = gsb_data_import_rule_new (NULL);
@@ -2812,45 +2815,116 @@ static  void gsb_file_load_import_rule ( const gchar **attribute_names,
         continue;
     }
 
-	if ( !strcmp ( attribute_names[i], "SkiS" ))
+	if ( !strcmp ( attribute_names[i], "SpCN" ))
     {
-        gsb_data_import_rule_set_csv_skipped_lines_str (import_rule_number, attribute_values[i]);
+        gsb_data_import_rule_set_csv_spec_cols_name (import_rule_number, attribute_values[i]);
         i++;
         continue;
     }
 
-	if (!strcmp( attribute_names[i], "SpA"))
+    if ( !strcmp ( attribute_names[i], "SpCN" ))
     {
-        gsb_data_import_rule_set_csv_spec_action (import_rule_number, utils_str_atoi (attribute_values[i]));
+        gsb_data_import_rule_set_csv_spec_cols_name (import_rule_number, attribute_values[i]);
         i++;
         continue;
     }
 
-	if (!strcmp( attribute_names[i], "SpAC"))
+	if ( !strcmp ( attribute_names[i], "NbSL" ))
     {
-        gsb_data_import_rule_set_csv_spec_amount_col (import_rule_number, utils_str_atoi (attribute_values[i]));
+        gsb_data_import_rule_set_csv_spec_nbre_lines (import_rule_number, utils_str_atoi (attribute_values[i]));
         i++;
         continue;
     }
 
-	if (!strcmp( attribute_names[i], "SpTC"))
-    {
-        gsb_data_import_rule_set_csv_spec_text_col (import_rule_number, utils_str_atoi (attribute_values[i]));
-        i++;
-        continue;
-    }
-
-
-	if ( !strcmp ( attribute_names[i], "SpTS" ))
-    {
-        gsb_data_import_rule_set_csv_spec_text_str (import_rule_number, attribute_values[i]);
-        i++;
-        continue;
-    }
-   /* normally, shouldn't come here */
+	/* normally, shouldn't come here */
     i++;
     }
     while ( attribute_names[i] );
+}
+
+/**
+ * load the import rules structure in the grisbi file
+ *
+ * \param attribute_names
+ * \param attribute_values
+ *
+ **/
+static  void gsb_file_load_import_rule_spec_line (const gchar **attribute_names,
+												  const gchar **attribute_values)
+{
+	GSList *list = NULL;
+    gint i=0;
+	gint index =0;
+    gint import_rule_number = 0;
+	SpecConfData *spec_conf_data;
+devel_debug (NULL);
+	if ( !attribute_names[i])
+		return;
+
+	spec_conf_data = g_malloc0 (sizeof (SpecConfData));
+    do
+    {
+		/* we test at the beginning if the attribute_value is NULL, if yes, */
+		/* go to the next */
+		if (!strcmp (attribute_values[i], "(null)"))
+		{
+			i++;
+			continue;
+		}
+
+		if (!strcmp ( attribute_names[i], "Nb"))
+		{
+			index = utils_str_atoi (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		if (!strcmp ( attribute_names[i], "NuR"))
+		{
+			import_rule_number = utils_str_atoi (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		if (!strcmp( attribute_names[i], "SpA"))
+		{
+			spec_conf_data->csv_spec_conf_action = utils_str_atoi (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		if (!strcmp( attribute_names[i], "SpAD"))
+		{
+			spec_conf_data->csv_spec_conf_action_data = utils_str_atoi (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		if (!strcmp( attribute_names[i], "SpUD"))
+		{
+			spec_conf_data->csv_spec_conf_used_data = utils_str_atoi (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		if ( !strcmp ( attribute_names[i], "SpUT" ))
+		{
+			spec_conf_data->csv_spec_conf_used_text = g_strdup (attribute_values[i]);
+			i++;
+			continue;
+		}
+
+		/* normally, shouldn't come here */
+		i++;
+    }
+    while (attribute_names[i]);
+
+	if (index)
+	{
+		list = gsb_data_import_rule_get_csv_spec_lines_list	(import_rule_number);
+		list = g_slist_append (list, spec_conf_data);
+		gsb_data_import_rule_set_csv_spec_lines_list (import_rule_number, list);
+	}
 }
 
 /**
@@ -3827,6 +3901,11 @@ static void gsb_file_load_start_element ( GMarkupParseContext *context,
                         attribute_values );
             }
 
+            else if ( !strcmp ( element_name, "Special_line" ))
+            {
+                gsb_file_load_import_rule_spec_line (attribute_names, attribute_values);
+            }
+
             else
                 unknown = 1;
             break;
@@ -3935,35 +4014,16 @@ gboolean gsb_file_load_open_file (const gchar *filename )
                 g_free (file_content);
                 return FALSE;
             }
-            else
-            {
-                gchar *text;
-                gchar *hint;
-                gchar *tmp_str;
-
-                tmp_str = g_filename_display_basename (filename);
-                text = g_strdup_printf (_("Grisbit no longer supports file encryption "
-                                          "due to the existence of reliable external solutions."));
-
-                hint = g_strdup_printf (_("Your file '%s' will be saved unencrypted"), tmp_str );
-
-                dialogue_hint (text, hint);
-
-                g_free (tmp_str);
-                g_free (hint);
-                g_free (text);
-            }
-
 #else
             {
                 gchar *text;
                 gchar *hint;
 
                 g_free (file_content);
-                text = g_strdup_printf (_("Grisbit no longer supports file encryption "
-                                          "due to the existence of reliable external solutions."));
+                text = g_strdup_printf (_("This build of Grisbi does not support encryption.\n"
+										  "Please recompile Grisbi with OpenSSL encryption enabled."));
 
-                hint = g_strdup_printf (_("Unable to use file encryption"));
+                hint = g_strdup_printf (_("Cannot open encrypted file '%s'"), filename);
 
                 dialogue_error_hint ( text, hint );
                 g_free ( hint );

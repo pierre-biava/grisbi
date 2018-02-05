@@ -99,6 +99,7 @@ struct _GrisbiWinEtat
 	gchar *		adr_secondary;
 
 	/* files and backup part */
+	gint crypt_file;                /* TRUE if we want to crypt the file */
     gint fichier_deja_ouvert;       /* à un si lors de l'ouverture, le fichier semblait déjà ouvert */
 
     /* devises pour les catégories, imputations budgétaires et les tiers */
@@ -236,9 +237,10 @@ struct GrisbiAppConf
     gboolean    limit_completion_to_current_account;        /* Limit payee completion to current account or do a full search. */
 
 /* general part */
+    gchar *     browser_command;
     gint        custom_fonte_listes;                        /* TRUE to use a custom font for the lists */
     gchar *     font_string;                                /* contain the description of the font, or NULL */
-    gchar *     browser_command;
+	gchar *		language_chosen;							/* choix de la langue : NULL par défaut = langue système */
 
     /* Home page */
     gint        pluriel_final;                              /* 0 = finals 1 = finaux */
@@ -261,7 +263,7 @@ struct GrisbiAppConf
     gboolean    maximize_screen;                            /* TRUE to maximize screen, 0 else */
 
 /* panel part */
-    gboolean active_scrolling_left_pane;                    /* active mouse scrolling in the left_pane. */
+    gboolean 	active_scrolling_left_pane;                 /* active mouse scrolling in the left_pane. */
     gint        panel_width;                                /* navigation paned width */
 
 /* prefs part */
@@ -298,6 +300,7 @@ struct _GrisbiWinRun
     gboolean old_version;           /* TRUE if file version < 0.6 */
 
     /* initialisation variables */
+    gboolean new_crypted_file;      /* 0 à l'exécution de init_variables () 1 si new crypted file*/
 
     /* file stuff */
     time_t file_modification;

@@ -111,6 +111,7 @@ gboolean recuperation_donnees_gnucash ( GtkWidget * assistant,
   xmlDocPtr doc;
   struct ImportAccount * account;
 
+  (void)assistant;
   gnucash_filename = my_strdup ( imported -> name );
   doc = parse_gnucash_file ( gnucash_filename );
 
@@ -664,6 +665,7 @@ struct gnucash_split * find_split ( GSList * split_list, gsb_real amount,
 {
   GSList * tmp;
 
+  (void)account;
   tmp = split_list;
   while ( tmp )
     {
@@ -780,19 +782,21 @@ struct ImportTransaction * new_transaction_from_split ( struct gnucash_split * s
       struct ImportAccount * contra_account;
       struct ImportTransaction * contra_transaction;
 
-      contra_transaction = calloc ( 1, sizeof ( struct ImportTransaction ));
-      contra_transaction -> montant = gsb_real_opposite (split -> amount);
-      contra_transaction -> notes = split -> notes;
-      contra_transaction -> tiers = tiers;
-      contra_transaction -> date = date;
-      contra_transaction -> p_r = split -> p_r;
-
-      transaction -> categ = g_strconcat ( "[", split -> contra_account, "]", NULL );
-      contra_transaction -> categ = g_strconcat ( "[", split -> account, "]", NULL );
-
       contra_account = find_imported_account_by_name ( split -> contra_account );
       if ( contra_account )
-	contra_account -> operations_importees = g_slist_append ( contra_account -> operations_importees, contra_transaction );
+      {
+	  contra_transaction = calloc ( 1, sizeof ( struct ImportTransaction ));
+	  contra_transaction -> montant = gsb_real_opposite (split -> amount);
+	  contra_transaction -> notes = split -> notes;
+	  contra_transaction -> tiers = tiers;
+	  contra_transaction -> date = date;
+	  contra_transaction -> p_r = split -> p_r;
+
+	  transaction -> categ = g_strconcat ( "[", split -> contra_account, "]", NULL );
+	  contra_transaction -> categ = g_strconcat ( "[", split -> account, "]", NULL );
+
+	  contra_account -> operations_importees = g_slist_append ( contra_account -> operations_importees, contra_transaction );
+      }
     }
   else
     {

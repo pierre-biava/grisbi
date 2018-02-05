@@ -96,7 +96,7 @@ static gboolean gsb_menu_help_quick_start (void)
 {
     gchar *lang = _("en");
 
-    gchar* tmpstr = g_build_filename (HELP_PATH, lang, "quickstart.html", NULL);
+    gchar* tmpstr = g_build_filename (gsb_dirs_get_help_dir (), lang, "quickstart.html", NULL);
     lance_navigateur_web (tmpstr);
     g_free (tmpstr);
 
@@ -1122,7 +1122,6 @@ void gsb_menu_set_menus_select_scheduled_sensitive (gboolean sensitive)
  * */
 void gsb_menu_set_menus_with_file_sensitive (gboolean sensitive)
 {
-    GAction *action;
     gchar * items[] = {
         "save-as",
         "export-accounts",
@@ -1150,9 +1149,6 @@ void gsb_menu_set_menus_with_file_sensitive (gboolean sensitive)
         gsb_menu_gui_sensitive_win_menu_item (*tmp, sensitive);
         tmp++;
     }
-    /* sensibilise le menu preferences */
-    action = grisbi_app_get_prefs_action ();
-    g_simple_action_set_enabled (G_SIMPLE_ACTION (action), sensitive);
 }
 
 /**

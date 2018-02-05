@@ -1,9 +1,11 @@
 [Desktop Entry]
 _Name=Grisbi
 _Comment=Personnal finances manager
-Exec=grisbi
+_Keywords=finance
+Exec=grisbi %f
 Icon=grisbi
 Terminal=false
 MimeType=application/x-grisbi;
 Type=Application
 Categories=Office;Finance;
+StartupNotify=true

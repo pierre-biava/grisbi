@@ -2,7 +2,7 @@
 /*                                                                            */
 /*     Copyright (C)    2000-2008 Cédric Auger (cedric@grisbi.org)            */
 /*          2004-2008 Benjamin Drieu (bdrieu@april.org)                       */
-/*                      2008-2017 Pierre Biava (grisbi@pierre.biava.name)     */
+/*                      2008-2018 Pierre Biava (grisbi@pierre.biava.name)     */
 /*          http://www.grisbi.org                                             */
 /*                                                                            */
 /*  This program is free software; you can redistribute it and/or modify      */
@@ -1510,7 +1510,15 @@ static void gsb_import_select_file (GSList *filenames,
 			charmap = charmap_imported;
 		}
 
-		/* Test Convert to UTF8 */
+		/* CSV is special because it needs configuration, so we
+		 * add a conditional jump here when selected = TRUE. */
+		if (selected && !strcmp (type, "CSV"))
+		{
+			gsb_assistant_set_next ( assistant, IMPORT_FILESEL_PAGE, IMPORT_CSV_PAGE );
+			gsb_assistant_set_prev ( assistant, IMPORT_RESUME_PAGE, IMPORT_CSV_PAGE );
+		}
+
+ 		/* Test Convert to UTF8 */
 		if (charmap && !conf.force_import_directory)
 		{
 			contents = g_convert (tmp_contents, -1, "UTF-8", charmap, NULL, NULL, NULL);
@@ -1576,6 +1584,10 @@ static gboolean gsb_import_enter_force_dir_page (GtkWidget *assistant)
 
 	/* Don't allow going to next page if no file is selected yet. */
     gtk_widget_set_sensitive (g_object_get_data (G_OBJECT (assistant), "button_next"), FALSE);
+
+	/* if conf.import_directory is not set force a default directory */
+	if (!conf.import_directory)
+		conf.import_directory = my_strdup (g_get_user_special_dir (G_USER_DIRECTORY_DOWNLOAD));
 
 	dir =  g_file_new_for_path (conf.import_directory);
 	direnum = g_file_enumerate_children (dir,
@@ -2684,7 +2696,8 @@ static void gsb_import_ope_import_toggled (GtkWidget *button,
  * \return
  **/
 static void gsb_import_confirmation_enregistrement_ope_import (struct ImportAccount *imported_account,
-															   gint account_number)
+															   gint account_number,
+															   GtkWindow *parent)
 {
     GSList *tmp_list;
     GtkWidget *dialog;
@@ -2702,15 +2715,23 @@ static void gsb_import_confirmation_enregistrement_ope_import (struct ImportAcco
 
     /* pbiava the 03/17/2009 modifications pour la fusion des opérations */
     if (etat.fusion_import_transactions)
+	{
         tmp_str = g_strdup_printf (
                         _("Confirmation of transactions to be merged in: %s"),
                         gsb_data_account_get_name (account_number));
+	}
     else
+	{
         tmp_str = g_strdup_printf (
                         _("Confirmation of importation of transactions in: %s"),
                         gsb_data_account_get_name (account_number));
+	}
+
+	if (parent == NULL)
+		parent = GTK_WINDOW (grisbi_app_get_active_window (NULL));
+
     dialog = gtk_dialog_new_with_buttons (tmp_str,
-                        GTK_WINDOW (grisbi_app_get_active_window (NULL)),
+                        GTK_WINDOW (parent),
                         GTK_DIALOG_MODAL,
                         "gtk-select-all", -12,
                         _("Unselect all"), -13,
@@ -3139,7 +3160,8 @@ static gboolean gsb_import_set_id_compte (gint account_nb,
  * \return
  **/
 static void gsb_import_add_imported_transactions (struct ImportAccount *imported_account,
-												  gint account_number)
+												  gint account_number,
+												  GtkWindow *parent)
 {
     GSList *tmp_list;
     GDate *first_date_import = NULL;
@@ -3176,7 +3198,7 @@ static void gsb_import_add_imported_transactions (struct ImportAccount *imported
 
     /* if we are not sure about some transactions, ask now */
     if (demande_confirmation)
-        gsb_import_confirmation_enregistrement_ope_import (imported_account, account_number);
+        gsb_import_confirmation_enregistrement_ope_import (imported_account, account_number, parent);
 
     /* ok, now we know what to do for each transactions, can import to the account */
     mother_transaction_number = 0;
@@ -4108,7 +4130,7 @@ static void gsb_import_pointe_opes_importees (struct ImportAccount *imported_acc
  *
  * \return
  * */
-static void traitement_operations_importees (void)
+static void traitement_operations_importees (GtkWindow *parent)
 {
     GSList *tmp_list;
     gint new_file;
@@ -4175,7 +4197,7 @@ static void traitement_operations_importees (void)
 
         case IMPORT_ADD_TRANSACTIONS:
         account_number = gsb_account_get_combo_account_number (compte->bouton_compte_add);
-        gsb_import_add_imported_transactions (compte,account_number);
+        gsb_import_add_imported_transactions (compte,account_number, parent);
 
         break;
 
@@ -4199,7 +4221,6 @@ static void traitement_operations_importees (void)
     {
         /* ok, we create the rule */
         gchar *name;
-		gchar *skipped_lines_str;
         gint rule;
 
         name = (gchar *) gtk_entry_get_text (GTK_ENTRY (compte->entry_name_rule));
@@ -4239,13 +4260,8 @@ static void traitement_operations_importees (void)
 			gsb_data_import_rule_set_csv_first_line_data (rule, compte->csv_first_line_data);
 			gsb_data_import_rule_set_csv_headers_present (rule, compte->csv_headers_present);
 			gsb_data_import_rule_set_csv_separator (rule, etat.csv_separator);
-			skipped_lines_str = csv_import_skipped_lines_to_string ();
-			gsb_data_import_rule_set_csv_skipped_lines_str (rule, skipped_lines_str);
-			g_free (skipped_lines_str);
-			gsb_data_import_rule_set_csv_spec_action (rule, compte->csv_spec_action);
-			gsb_data_import_rule_set_csv_spec_amount_col (rule, compte->csv_spec_amount_col);
-			gsb_data_import_rule_set_csv_spec_text_col (rule, compte->csv_spec_text_col);
-			gsb_data_import_rule_set_csv_spec_text_str (rule, compte->csv_spec_text_str);
+			gsb_data_import_rule_set_csv_spec_lines_list (rule, compte->csv_spec_lines_list);
+			gsb_data_import_rule_set_csv_spec_cols_name (rule, compte->csv_spec_cols_name);
 		}
     }
     tmp_list = tmp_list->next;
@@ -4381,8 +4397,9 @@ void gsb_import_assistant_importer_fichier (void)
 
     if (gsb_assistant_run (assistant) == GTK_RESPONSE_APPLY)
     {
-        grisbi_win_status_bar_wait (TRUE);
-        traitement_operations_importees ();
+
+		grisbi_win_status_bar_wait (TRUE);
+        traitement_operations_importees (GTK_WINDOW (assistant));
         gtk_widget_destroy (assistant);
         grisbi_win_status_bar_stop_wait (TRUE);
     }
@@ -4839,7 +4856,7 @@ gboolean gsb_import_by_rule (gint rule)
             switch (gsb_data_import_rule_get_action (rule))
             {
                 case IMPORT_ADD_TRANSACTIONS:
-                gsb_import_add_imported_transactions (account, account_number);
+                gsb_import_add_imported_transactions (account, account_number, NULL);
 
                 break;
 

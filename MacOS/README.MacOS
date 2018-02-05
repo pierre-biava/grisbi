@@ -33,16 +33,18 @@ Then use the following command lines:
 
 Optionnaly download goffice
   Patch goffice.c) (180, 184) to rename "quartz_*" function calls to "gtkosx_*".
-  Patch configure.ac to instruct to use GTK3 instead of GTK2.
   Compile and install goffice :
   % jhbuild shell
-  % ./configure
+  % ./configure --prefix=$PREFIX
   % make
   % make install
 
 Optionnaly download "libofx" (Broken at the moment)
   https://sourceforge.net/projects/libofx/files/latest/download
   https://sourceforge.net/projects/openjade/files/opensp/1.5.1/OpenSP-1.5.1.tar.gz
+
+Download gtk-mac-bundler from https://wiki.gnome.org/Projects/GTK+/OSX/Bundling
+Use the git version. Version 0.7.4 failed for me.
 
 2. Compile
 

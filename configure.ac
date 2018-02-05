@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 
 m4_define(grisbi_major_version, 1)
 m4_define(grisbi_minor_version, 1)
-m4_define(grisbi_micro_version, 90)
+m4_define(grisbi_micro_version, 91)
 m4_define(grisbi_version, grisbi_major_version.grisbi_minor_version.grisbi_micro_version)
 
 m4_pattern_allow([AM_PROG_AR])
@@ -153,9 +153,9 @@ dnl Check for cunit
 dnl ================================================================
 
 AC_ARG_WITH(cunit,
-	AS_HELP_STRING([--with-cunit],[CUnit support for unit tests (default=auto)]),
+	AS_HELP_STRING([--with-cunit],[CUnit support for unit tests (default=no)]),
 	[build_cunit=$withval],
-	[build_cunit=auto])
+	[build_cunit=no])
 
 AC_CHECK_HEADER([CUnit/Basic.h], have_cunit=yes, have_cunit=no)
 if test "$build_cunit" = yes -a "$have_cunit" = no; then

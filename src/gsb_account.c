@@ -37,6 +37,7 @@
 #include "gsb_category.h"
 #include "gsb_data_account.h"
 #include "gsb_data_currency.h"
+#include "gsb_data_import_rule.h"
 #include "gsb_data_payment.h"
 #include "gsb_data_scheduled.h"
 #include "gsb_data_transaction.h"
@@ -241,12 +242,28 @@ gboolean gsb_account_delete ( void )
         gpointer ptr;
         gint payment_number;
 
-        ptr = list_tmp -> data;
+        ptr = list_tmp->data;
         payment_number = GPOINTER_TO_INT ( ptr );
         gsb_data_payment_remove ( payment_number );
 
         list_tmp = list_tmp -> next;
     }
+
+	/* delete the rules if necessary */
+	list_tmp = gsb_data_import_rule_get_from_account (deleted_account);
+	if (list_tmp)
+	{
+		while (list_tmp)
+		{
+			ImportRule *import_rule;
+
+			import_rule = (ImportRule *) list_tmp->data;
+			gsb_data_import_rule_remove (import_rule->import_rule_number);
+
+			list_tmp = list_tmp -> next;
+		}
+		g_slist_free (list_tmp);
+	}
 
     /* delete the account */
     gsb_data_account_delete ( deleted_account );
@@ -263,8 +280,8 @@ gboolean gsb_account_delete ( void )
         page_number = gtk_notebook_get_current_page ( GTK_NOTEBOOK ( notebook_general ) );
         first_account = gsb_data_account_first_no_closed_account ();
 
-        gtk_notebook_set_current_page ( GTK_NOTEBOOK ( notebook_general ), page_number );
-        gsb_gui_navigation_set_selection ( 1, first_account, 0);
+		gtk_notebook_set_current_page ( GTK_NOTEBOOK ( notebook_general ), page_number );
+        gsb_gui_navigation_set_selection (GSB_ACCOUNT_PAGE, first_account, 0);
         navigation_change_account ( first_account );
     }
 
@@ -303,13 +320,15 @@ GtkWidget *gsb_account_create_combo_list ( GCallback func,
     GtkListStore *store;
     GtkCellRenderer *renderer;
     GtkWidget *combobox;
+	gboolean is_loading;
 
     combobox = gtk_combo_box_new ();
 
-    store = gtk_list_store_new ( 2,
-				 G_TYPE_STRING,
-				 G_TYPE_INT );
+    store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_INT);
+	is_loading = grisbi_win_file_is_loading ();
 
+	if (is_loading)
+	{
     list_tmp = gsb_data_account_get_list_accounts ();
 
     while ( list_tmp )
@@ -332,6 +351,16 @@ GtkWidget *gsb_account_create_combo_list ( GCallback func,
 	}
 	list_tmp = list_tmp -> next;
     }
+	}
+	else
+	{
+		GtkTreeIter iter;
+	    gtk_list_store_append (GTK_LIST_STORE (store), &iter);
+	    gtk_list_store_set (store, &iter,
+				 0, _("Not available"),
+				 1, -1,
+				 -1 );
+	}
 
     gtk_combo_box_set_model ( GTK_COMBO_BOX (combobox),
 			      GTK_TREE_MODEL (store));
@@ -340,7 +369,7 @@ GtkWidget *gsb_account_create_combo_list ( GCallback func,
     gtk_combo_box_set_active ( GTK_COMBO_BOX (combobox),
 			       0 );
 
-    if ( func )
+    if (is_loading && func )
 	g_signal_connect ( G_OBJECT (combobox),
 			   "changed",
 			   G_CALLBACK(func),

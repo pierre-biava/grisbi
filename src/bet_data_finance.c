@@ -348,105 +348,14 @@ gdouble bet_data_finance_get_bet_taux_step (gint nbre_digits)
     return bet_taux_step[BET_TAUX_DIGITS];
 }
 
-/**
- *
- *
- * \param
- *
- * \return
- **/
-GSList *bet_data_loan_get_loan_list (void)
-{
-	return bet_loan_list;
-}
 
 /**
  *
  *
  * \param
  *
- * \return
- **/
-void bet_data_loan_add_item (LoanStruct *s_loan)
-{
-	guint length;
-
-	length = g_slist_length (bet_loan_list);
-	s_loan->number = length;
-	bet_loan_list = g_slist_append (bet_loan_list, s_loan);
-}
-
-/**
  *
- *
- * \param
- *
- * \return
- **/
-gboolean bet_data_loan_remove_item (LoanStruct *s_loan)
-{
-	GSList *tmp_list;
-
-	tmp_list = g_slist_find (bet_loan_list, s_loan);
-	if (tmp_list)
-	{
-		bet_loan_list = g_slist_remove (bet_loan_list, s_loan);
-		g_free (s_loan);
-		return TRUE;
-	}
-	else
-		return FALSE;
-}
-
-/**
- *
- *
- * \param
- *
- * \return
- **/
-LoanStruct *bet_data_loan_struct_loan_init (void)
-{
-	LoanStruct *s_loan;
-
-	s_loan = g_malloc0 (sizeof (LoanStruct));
-	s_loan->first_date = NULL;
-
-	return s_loan;
-}
-
-/**
- *
- *
- * \param
- *
- * \return
- **/
-GSList *bet_data_loan_get_loan_list_by_account (gint account_number)
-{
-	GSList *list = NULL;
-	GSList *tmp_list;
-
-	tmp_list = bet_loan_list;
-	while (tmp_list)
-	{
-		LoanStruct *s_loan;
-
-		s_loan = (LoanStruct *) tmp_list->data;
-		if (s_loan->account_number == account_number)
-			list = g_slist_append (list, s_loan);
-		tmp_list = tmp_list->next;
-	}
-	return list;
-}
-
-/**
- *
- *
- * \param
- *
- * \return
- **/
+ * */
 /* Local Variables: */
 /* c-basic-offset: 4 */
 /* End: */
