@@ -713,8 +713,10 @@ static void grisbi_win_init (GrisbiWin *win)
     priv->notebook_general = NULL;
 	priv->vbox_transactions_list = NULL;
 
-    /* creation de la structure w_run */
+    /* creation et initialisation de la structure w_run */
     priv->w_run = g_malloc0 (sizeof (GrisbiWinRun));
+	(priv->w_run)->prefs_expand_tree = TRUE;
+
 
     /* initialisation de la variable w_etat */
     priv->w_etat = g_malloc0 ( sizeof (GrisbiWinEtat));

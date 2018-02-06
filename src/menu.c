@@ -220,6 +220,7 @@ void grisbi_cmd_prefs (GSimpleAction *action,
 {
 	GrisbiPrefs *prefs;
 	GrisbiWin *win;
+	GrisbiWinRun *run;
 	gint result;
 
 	win = grisbi_app_get_active_window (app);
@@ -228,6 +229,11 @@ void grisbi_cmd_prefs (GSimpleAction *action,
 
 	gtk_window_present (GTK_WINDOW (prefs));
 	gtk_widget_show_all (GTK_WIDGET (prefs));
+
+	/* positionne le treeview en fonction de run->prefs_expand_tree */
+	run = (GrisbiWinRun *) grisbi_win_get_w_run ();
+
+	grisbi_prefs_set_collapse_expand_left_tree_view (prefs, run->prefs_expand_tree);
 	result = gtk_dialog_run (GTK_DIALOG (prefs));
 	grisbi_prefs_dialog_response (GTK_DIALOG (prefs), result);
 }

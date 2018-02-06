@@ -104,6 +104,51 @@ G_DEFINE_TYPE_WITH_PRIVATE (GrisbiPrefs, grisbi_prefs, GTK_TYPE_DIALOG)
 /* Private functions                                                          */
 /******************************************************************************/
 /**
+ * Cette fonction réduit ou développe toutes les lignes du tree_view.
+ * Le libellé du bouton est modifié en conséquence.
+ *
+ * \param le button de commande
+ * \param le tree_view considéré
+ *
+ * \return
+ */
+static void grisbi_prefs_collapse_expand_all_rows (GtkToggleButton *togglebutton,
+												   GtkWidget *tree_view)
+{
+    GtkWidget *hbox_expand;
+    GtkWidget *hbox_collapse;
+	GrisbiWinRun *run;
+	devel_debug (NULL);
+
+    hbox_expand = g_object_get_data (G_OBJECT (togglebutton), "hbox_expand");
+    hbox_collapse = g_object_get_data (G_OBJECT (togglebutton), "hbox_collapse");
+	run = (GrisbiWinRun *) grisbi_win_get_w_run ();
+
+	/* on remet à FALSE la propriété "no-show-all" utilisée pour initialiser le bouton */
+	/* voir etats_prefs_toggle_button_init_button_expand () */
+	/* et grisbi_prefs_init () */
+	if (gtk_widget_get_no_show_all (hbox_expand))
+		gtk_widget_set_no_show_all (hbox_expand, FALSE);
+	else
+		gtk_widget_set_no_show_all (hbox_collapse, FALSE);
+
+	if (gtk_toggle_button_get_active (togglebutton))
+	{
+		gtk_widget_hide (hbox_expand);
+		gtk_widget_show_all (hbox_collapse);
+		gtk_tree_view_expand_all (GTK_TREE_VIEW (tree_view));
+		run->prefs_expand_tree = TRUE;
+	}
+	else
+	{
+		gtk_widget_show_all (hbox_expand);
+		gtk_widget_hide (hbox_collapse);
+		gtk_tree_view_collapse_all (GTK_TREE_VIEW (tree_view));
+		run->prefs_expand_tree = FALSE;
+	}
+}
+
+/**
  * callback pour la fermeture des preferences
  *
  * \param prefs_dialog
@@ -435,8 +480,6 @@ static void grisbi_prefs_left_panel_populate_tree_model (GrisbiPrefs *prefs)
 
 	/* append page Accounts data */
 	widget = GTK_WIDGET (prefs_page_bet_account_new (prefs));
-	//~ widget = GTK_WIDGET (bet_config_account_create_account_page ());
-	//~ utils_widget_set_padding (widget, MARGIN_BOX, 0);
 	utils_prefs_left_panel_add_line (tree_model, priv->notebook_prefs, widget, _("Accounts data"), page);
 	page++;
 }
@@ -530,13 +573,23 @@ static void grisbi_prefs_init (GrisbiPrefs *prefs)
 	GtkWidget *prefs_paned;
 	GtkWidget *tree;
 	GtkWidget *hbox;
+	GtkWidget *vbox;
+	GtkWidget *button;
+	GtkWidget *button_hbox1;
+	GtkWidget *button_hbox2;
+	GtkWidget *button_vbox;
+	GtkWidget *label;
+	GtkWidget *image;
+    gchar *filename;
+	GrisbiWinRun *run;
 	GrisbiPrefsPrivate *priv;
 
 	devel_debug (NULL);
 
 	priv = grisbi_prefs_get_instance_private (prefs);
+	run = (GrisbiWinRun *) grisbi_win_get_w_run ();
 
-    gtk_dialog_add_buttons (GTK_DIALOG (prefs), "gtk-close", GTK_RESPONSE_CLOSE, NULL);
+	gtk_dialog_add_buttons (GTK_DIALOG (prefs), "gtk-close", GTK_RESPONSE_CLOSE, NULL);
 
 	g_signal_connect (G_OBJECT (prefs), "size-allocate", (GCallback) grisbi_prefs_size_allocate, NULL);
 
@@ -557,10 +610,65 @@ static void grisbi_prefs_init (GrisbiPrefs *prefs)
     gtk_box_pack_start (GTK_BOX (hbox), priv->notebook_prefs, TRUE, TRUE, 0);
 
 	/* initialise left_tree_view */
+    vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
 	tree = grisbi_prefs_left_tree_view_setup (prefs);
+	gtk_widget_set_vexpand (tree, TRUE);
+	gtk_box_pack_start (GTK_BOX (vbox), tree, TRUE, TRUE, 0);
+
+	/* set the expand collapse button */
+	button = gtk_toggle_button_new ();
+	gtk_widget_set_tooltip_text (button,
+								 _("This state will be kept for the duration of this session"));
+
+	/* construction du bouton */
+	button_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+
+	button_hbox1 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, MARGIN_BOX);
+	gtk_widget_set_halign (button_hbox1, GTK_ALIGN_CENTER);
+	g_object_set_data (G_OBJECT (button), "hbox_expand", button_hbox1);
+    filename = g_build_filename (gsb_dirs_get_pixmaps_dir (), "gsb-down-16.png", NULL);
+	image = gtk_image_new_from_file (filename);
+	g_free (filename);
+	gtk_box_pack_start (GTK_BOX (button_hbox1), image, FALSE, FALSE, 0);
+	label = gtk_label_new (_("Expand all"));
+	gtk_box_pack_start (GTK_BOX (button_hbox1), label, FALSE, FALSE, 0);
+
+	button_hbox2 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, MARGIN_BOX);
+	gtk_widget_set_halign (button_hbox2, GTK_ALIGN_CENTER);
+	g_object_set_data (G_OBJECT (button), "hbox_collapse", button_hbox2);
+    filename = g_build_filename (gsb_dirs_get_pixmaps_dir (), "gsb-up-16.png", NULL);
+	image = gtk_image_new_from_file (filename);
+	g_free (filename);
+	gtk_box_pack_start (GTK_BOX (button_hbox2), image, FALSE, FALSE, 0);
+	label = gtk_label_new (_("Collapse all"));
+	gtk_box_pack_start (GTK_BOX (button_hbox2), label, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (button_vbox), button_hbox1, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX (button_vbox), button_hbox2, FALSE, FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (button), button_vbox);
+
+	gtk_box_pack_start (GTK_BOX (vbox), button, FALSE, FALSE, 0);
+
+	/* positionne le button en fonction de run->prefs_expand_tree */
+	if (run->prefs_expand_tree)
+	{
+		gtk_widget_set_no_show_all (button_hbox1, TRUE);
+		gtk_widget_hide (button_hbox1);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), TRUE);
+	}
+	else
+	{
+		gtk_widget_set_no_show_all (button_hbox2, TRUE);
+		gtk_widget_hide (button_hbox2);
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (button), FALSE);
+	}
+
+    g_signal_connect (G_OBJECT (button),
+					  "clicked",
+					  G_CALLBACK (grisbi_prefs_collapse_expand_all_rows),
+					  priv->left_treeview);
 
 	/* construct paned */
-    gtk_paned_pack1 (GTK_PANED (prefs_paned), tree, TRUE, FALSE);
+    gtk_paned_pack1 (GTK_PANED (prefs_paned), vbox, TRUE, FALSE);
     gtk_paned_pack2 (GTK_PANED (prefs_paned), hbox, TRUE, FALSE);
 
 	gtk_container_set_border_width (GTK_CONTAINER(prefs_paned), MARGIN_BOX);
@@ -588,7 +696,6 @@ static void grisbi_prefs_init (GrisbiPrefs *prefs)
 
 	/* remplissage du paned gauche */
     grisbi_prefs_left_panel_populate_tree_model (prefs);
-
 }
 
 /**
@@ -624,11 +731,25 @@ static void grisbi_prefs_class_init (GrisbiPrefsClass *klass)
 /******************************************************************************/
 /* Public functions                                                           */
 /******************************************************************************/
+/**
+ *
+ *
+ * \param
+ *
+ * \return
+ **/
 GrisbiPrefs *grisbi_prefs_new (GrisbiWin *win)
 {
 	return g_object_new (GRISBI_PREFS_TYPE, "transient-for", win, NULL);
 }
 
+/**
+ *
+ *
+ * \param
+ *
+ * \return
+ **/
 void grisbi_prefs_set_page_by_name (gchar *page_name)
 {
 	GrisbiPrefs *prefs;
@@ -644,6 +765,34 @@ void grisbi_prefs_set_page_by_name (gchar *page_name)
 		utils_prefs_left_panel_tree_view_select_page (priv->left_treeview, priv->notebook_prefs, priv->form_num_page);
 	}
 }
+
+/**
+ *	positionne le treeview en fonction de run->prefs_expand_tree
+ *
+ * \param		prefs
+ * \param		prefs_expand_tree
+ *
+ * \return
+ **/
+void grisbi_prefs_set_collapse_expand_left_tree_view (GrisbiPrefs *prefs,
+													  gboolean prefs_expand_tree)
+{
+	GrisbiPrefsPrivate *priv;
+
+	devel_debug_int (prefs_expand_tree);
+
+	priv = grisbi_prefs_get_instance_private (prefs);
+
+	if (prefs_expand_tree)
+	{
+		gtk_tree_view_expand_all (GTK_TREE_VIEW (priv->left_treeview));
+	}
+	else
+	{
+		gtk_tree_view_collapse_all (GTK_TREE_VIEW (priv->left_treeview));
+	}
+}
+
 /**
  *
  *
