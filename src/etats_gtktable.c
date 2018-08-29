@@ -59,7 +59,7 @@ static gint gtktable_finish ( void );
 static gint gtktable_initialise ( GSList * opes_selectionnees, gchar * filename );
 /*END_STATIC*/
 
-GtkWidget *table_etat = NULL;
+//~ GtkWidget *table_etat = NULL;
 
 struct EtatAffichage gtktable_affichage = {
     gtktable_initialise,
@@ -147,7 +147,7 @@ void gtktable_attach_label ( gchar * text, gdouble properties, int x, int x2, in
 						GINT_TO_POINTER (transaction_number) );
 		x_dim = x2 - x;
 		y_dim = y2 - y;
-		gtk_grid_attach (GTK_GRID (table_etat), event_box, x, y, x_dim, y_dim);
+		//~ gtk_grid_attach (GTK_GRID (table_etat), event_box, x, y, x_dim, y_dim);
 		g_object_set_data (G_OBJECT (event_box), "x_dim", GINT_TO_POINTER (x_dim));
 
 		gtk_widget_show ( event_box );
@@ -157,7 +157,7 @@ void gtktable_attach_label ( gchar * text, gdouble properties, int x, int x2, in
     {
         x_dim = x2 - x;
         y_dim = y2 - y;
-        gtk_grid_attach (GTK_GRID (table_etat), label, x, y, x_dim, y_dim);
+        //~ gtk_grid_attach (GTK_GRID (table_etat), label, x, y, x_dim, y_dim);
 		g_object_set_data (G_OBJECT (label), "x_dim", GINT_TO_POINTER (x_dim));
     }
 	p_context = gtk_widget_get_pango_context (label);
@@ -203,7 +203,7 @@ void gtktable_attach_vsep ( int x, int x2, int y, int y2)
     separateur = gtk_separator_new ( GTK_ORIENTATION_VERTICAL );
     x_dim = x2 - x;
     y_dim = y2 - y;
-    gtk_grid_attach (GTK_GRID (table_etat), separateur, x, y, x_dim, y_dim);
+    //~ gtk_grid_attach (GTK_GRID (table_etat), separateur, x, y, x_dim, y_dim);
     utils_widget_set_padding ( separateur, 2,0);
 	g_object_set_data (G_OBJECT (separateur), "type_separator", GINT_TO_POINTER (GTK_ORIENTATION_VERTICAL));
 
@@ -228,7 +228,7 @@ void gtktable_attach_hsep ( int x, int x2, int y, int y2)
     separateur = gtk_separator_new ( GTK_ORIENTATION_HORIZONTAL );
     x_dim = x2 - x;
     y_dim = y2 - y;
-    gtk_grid_attach (GTK_GRID (table_etat), separateur, x, y, x_dim, y_dim);
+    //~ gtk_grid_attach (GTK_GRID (table_etat), separateur, x, y, x_dim, y_dim);
 	g_object_set_data (G_OBJECT (separateur), "type_separator", GINT_TO_POINTER (GTK_ORIENTATION_HORIZONTAL));
 
 	gtk_widget_show ( separateur );
@@ -242,8 +242,8 @@ gint gtktable_initialise ( GSList * opes_selectionnees, gchar * filename )
     /* on peut maintenant créer la table */
     /* pas besoin d'indiquer la hauteur, elle grandit automatiquement */
 
-    if (table_etat && GTK_IS_GRID (table_etat))
-        gtk_widget_destroy (table_etat);
+    //~ if (table_etat && GTK_IS_GRID (table_etat))
+        //~ gtk_widget_destroy (table_etat);
 
     /* regarder la liberation de mémoire */
     if ( scrolled_window_etat && gtk_bin_get_child ( GTK_BIN ( scrolled_window_etat ) ) )
@@ -253,8 +253,8 @@ gint gtktable_initialise ( GSList * opes_selectionnees, gchar * filename )
      * while we are processing the new report */
      update_gui ( );
 
-    table_etat = gtk_grid_new ();
-    gtk_grid_set_column_spacing (GTK_GRID (table_etat), 5);
+    //~ table_etat = gtk_grid_new ();
+    //~ gtk_grid_set_column_spacing (GTK_GRID (table_etat), 5);
 
     return 1;
 }
@@ -264,14 +264,14 @@ gint gtktable_initialise ( GSList * opes_selectionnees, gchar * filename )
 /*****************************************************************************************************/
 gint gtktable_finish ( void )
 {
-    gtk_container_add ( GTK_CONTAINER ( scrolled_window_etat ), table_etat );
-    gtk_scrolled_window_set_shadow_type ( GTK_SCROLLED_WINDOW ( scrolled_window_etat ), GTK_SHADOW_NONE );
+    //~ gtk_container_add ( GTK_CONTAINER ( scrolled_window_etat ), table_etat );
+    //~ gtk_scrolled_window_set_shadow_type ( GTK_SCROLLED_WINDOW ( scrolled_window_etat ), GTK_SHADOW_NONE );
 
-    gtk_container_set_border_width ( GTK_CONTAINER ( table_etat ), 6 );
-    gtk_widget_show_all ( table_etat );
+    //~ gtk_container_set_border_width ( GTK_CONTAINER ( table_etat ), 6 );
+    //~ gtk_widget_show_all ( table_etat );
 
-    if ( gtk_bin_get_child ( GTK_BIN ( scrolled_window_etat ) ) )
-        gtk_widget_show ( gtk_bin_get_child ( GTK_BIN ( scrolled_window_etat ) ) );
+    //~ if ( gtk_bin_get_child ( GTK_BIN ( scrolled_window_etat ) ) )
+        //~ gtk_widget_show ( gtk_bin_get_child ( GTK_BIN ( scrolled_window_etat ) ) );
 
     return 1;
 }

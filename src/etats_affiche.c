@@ -107,6 +107,7 @@ extern const gchar *nom_ib_en_cours;
 extern const gchar *nom_ss_categ_en_cours;
 extern const gchar *nom_ss_ib_en_cours;
 extern const gchar *nom_tiers_en_cours;
+extern gboolean *set_cols_titres;				/* utilisé pour afficher les titres dans le text_view */
 /*END_EXTERN*/
 
 
@@ -2414,7 +2415,8 @@ gint etat_affiche_affiche_titres_colonnes ( gint ligne )
 
     current_report_number = gsb_gui_navigation_get_current_report ();
 
-
+	/* met le flag pour les titres des colonnes */
+	set_cols_titres = TRUE;
     colonne = 1;
 
     if ( gsb_data_report_get_show_report_transaction_number (current_report_number))
@@ -2517,6 +2519,7 @@ gint etat_affiche_affiche_titres_colonnes ( gint ligne )
     ligne++;
 
     titres_affiches = 1;
+	set_cols_titres = FALSE;
 
     return ( ligne );
 }

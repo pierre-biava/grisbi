@@ -71,6 +71,7 @@ libgrisbi_la_SOURCES = \
 	etats_onglet.c		\
 	etats_prefs.c	\
 	etats_support.c		\
+	etats_textview.c	\
 	export.c		\
 	export_csv.c		\
 	file_obfuscate.c	\

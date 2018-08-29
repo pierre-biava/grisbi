@@ -81,7 +81,7 @@ struct EtatAffichage * etat_affichage_output;
 
 
 /*START_EXTERN*/
-extern struct EtatAffichage gtktable_affichage;
+extern struct EtatAffichage textview_affichage;
 extern gint ligne_debut_partie;
 extern gint nb_colonnes;
 extern gint nb_lignes;
@@ -159,7 +159,7 @@ void affichage_etat ( gint report_number,
     grisbi_win_status_bar_wait ( FALSE );
 
     if ( !affichage )
-	affichage = &gtktable_affichage;
+	affichage = &textview_affichage;
 
 
     /*   selection des opérations */
@@ -191,7 +191,7 @@ void affichage_empty_report (gint report_number)
 	    return;
 
 	grisbi_win_status_bar_wait (TRUE);
-	affichage = &gtktable_affichage;
+	affichage = &textview_affichage;
 
     /* on classe la liste et l'affiche en fonction du choix du type de classement */
     etat_affichage_output = affichage;
@@ -1454,7 +1454,7 @@ void rafraichissement_etat ( gint report_number )
     if ( !report_number )
 	report_number = gsb_gui_navigation_get_current_report ();
 
-    affichage_etat ( report_number, &gtktable_affichage, NULL );
+    affichage_etat ( report_number, &textview_affichage, NULL );
 }
 
 
